@@ -1,0 +1,36 @@
+ASSUMPTION
+
+Both client and ELK server is pingable
+In this example client is also using CentOS7 
+
+Create Yum repository 
+
+> cat >>/etc/yum.repos.d/elk.repo<<EOF 
+[ELK-6.x] 
+name=ELK repository for 6.x packages 
+baseurl=https://artifacts.elastic.co/packages/6.x/yum 
+gpgcheck=1 
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch 
+enabled=1 
+autorefresh=1 
+type=rpm-md 
+EOF
+
+Change the following configurations
+
+> vi /etc/filebeat/filebeat.yml
+
+  enabled: true
+  paths: 
+    - /var/log/secure
+    - /var/log/messages
+    - (rest depends on your requirement)
+  
+  uncomment Logstash output since we will use logstash to store logs
+  
+  output.logstash
+    hosts: ["elk.server.com:5044"]
+    ssl.certificate_authorities: ["/etc/pki/tls/certs/logstash.crt"] #if going to use ssl
+    
+> systemctl start filebeat
+> systemctl enable filebeat
